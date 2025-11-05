@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can I See Uranus?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #0a0e27 0%, #1a1a3e 50%, #0f0c29 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated stars background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            background: rgba(15, 12, 41, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(100, 150, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(79, 172, 254, 0.5);
+        }
+
+        .planet-icon {
+            font-size: 4em;
+            margin: 20px 0;
+            filter: drop-shadow(0 0 20px rgba(79, 172, 254, 0.6));
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .result.visible {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .result.not-visible {
+            background: rgba(244, 67, 54, 0.2);
+            border: 2px solid rgba(244, 67, 54, 0.5);
+        }
+
+        .result.info {
+            background: rgba(79, 172, 254, 0.2);
+            border: 2px solid rgba(79, 172, 254, 0.5);
+        }
+
+        .details {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #b0b0b0;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4facfe;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #ff6b6b;
+            margin-top: 20px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #707070;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <div class="planet-icon">🪐</div>
+        <h1>Can I See Uranus?</h1>
+        <p class="subtitle">Find out if Uranus is visible from your location right now</p>
+        
+        <button id="checkButton" onclick="checkUranus()">Check Now</button>
+        
+        <div id="result"></div>
+        <div id="error" class="error"></div>
+    </div>
+
+    <div class="footer">
+        Powered by astronomy-engine | Calculations done locally in your browser
+    </div>
+
+    <script type="module">
+        import { Body, Observer, Equator, Horizon } from 'https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/+esm';
+
+        // Generate random stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        createStars();
+
+        window.checkUranus = function() {
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+            const button = document.getElementById('checkButton');
+            
+            resultDiv.innerHTML = '';
+            errorDiv.innerHTML = '';
+            
+            if (!navigator.geolocation) {
+                errorDiv.innerHTML = '❌ Geolocation is not supported by your browser';
+                return;
+            }
+
+            button.disabled = true;
+            button.innerHTML = 'Checking...<span class="loading"></span>';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const now = new Date();
+
+                    try {
+                        // Create observer at user's location
+                        const observer = new Observer(latitude, longitude, 0);
+                        
+                        // Get Uranus's equatorial coordinates
+                        const equator = Equator(Body.Uranus, now, observer, true, true);
+                        
+                        // Convert to horizontal coordinates (altitude and azimuth)
+                        const horizon = Horizon(now, observer, equator.ra, equator.dec, 'normal');
+                        
+                        const altitude = horizon.altitude;
+                        const azimuth = horizon.azimuth;
+                        
+                        // Uranus is visible if it's above the horizon
+                        const isVisible = altitude > 0;
+                        
+                        // Get compass direction
+                        const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+                        const directionIndex = Math.round(azimuth / 45) % 8;
+                        const direction = directions[directionIndex];
+
+                        if (isVisible) {
+                            resultDiv.className = 'result visible';
+                            resultDiv.innerHTML = `
+                                <div style="font-size: 2em; margin-bottom: 10px;">✨ YES! ✨</div>
+                                <div>Uranus is currently above the horizon!</div>
+                                <div class="details">
+                                    <strong>Altitude:</strong> ${altitude.toFixed(1)}° above horizon<br>
+                                    <strong>Direction:</strong> ${direction} (${azimuth.toFixed(1)}°)<br>
+                                    <strong>Visibility Note:</strong> Uranus is magnitude ~5.7, so you'll need very dark skies and good eyesight to see it with the naked eye. Binoculars make it much easier!
+                                </div>
+                            `;
+                        } else {
+                            resultDiv.className = 'result not-visible';
+                            resultDiv.innerHTML = `
+                                <div style="font-size: 2em; margin-bottom: 10px;">🌙 Not Right Now</div>
+                                <div>Uranus is currently below the horizon at your location.</div>
+                                <div class="details">
+                                    <strong>Altitude:</strong> ${altitude.toFixed(1)}° (below horizon)<br>
+                                    Check back later tonight or try again tomorrow!
+                                </div>
+                            `;
+                        }
+
+                    } catch (error) {
+                        errorDiv.innerHTML = '❌ Error calculating Uranus position: ' + error.message;
+                    }
+
+                    button.disabled = false;
+                    button.innerHTML = 'Check Again';
+                },
+                (error) => {
+                    let errorMessage = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = '❌ Location permission denied. Please enable location access.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = '❌ Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = '❌ Location request timed out.';
+                            break;
+                        default:
+                            errorMessage = '❌ An unknown error occurred.';
+                    }
+                    errorDiv.innerHTML = errorMessage;
+                    button.disabled = false;
+                    button.innerHTML = 'Check Now';
+                }
+            );
+        }
+    </script>
+</body>
+</html>

@@ -3,300 +3,869 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Can I See Uranus?</title>
+    <title>🍺 Alcohol Metabolism Calculator - BAC Science Tool</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@3.0.0/index.min.js"></script>
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to bottom, #0a0e27 0%, #1a1a3e 50%, #0f0c29 100%);
-            color: #e0e0e0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
-            position: relative;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
-
-        /* Animated stars background */
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-
-        .container {
-            background: rgba(15, 12, 41, 0.8);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(100, 150, 255, 0.3);
-            border-radius: 20px;
+        
+        header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             padding: 40px;
-            max-width: 600px;
-            width: 100%;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            position: relative;
-            z-index: 1;
+            color: white;
         }
-
-        h1 {
-            font-size: 3em;
+        
+        header h1 {
+            font-size: 2.5em;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(79, 172, 254, 0.5);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
-
-        .planet-icon {
-            font-size: 4em;
-            margin: 20px 0;
-            filter: drop-shadow(0 0 20px rgba(79, 172, 254, 0.6));
-        }
-
-        .subtitle {
+        
+        header p {
             font-size: 1.1em;
-            color: #a0a0a0;
+            opacity: 0.95;
+        }
+        
+        .warning-banner {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px 20px;
+            margin: 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #856404;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
             margin-bottom: 30px;
         }
-
-        button {
-            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.1em;
-            border-radius: 50px;
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 0.95em;
+        }
+        
+        input, select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-            font-weight: bold;
         }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
-        }
-
-        button:disabled {
-            background: #555;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .result {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 15px;
-            font-size: 1.2em;
-            line-height: 1.6;
-        }
-
-        .result.visible {
-            background: rgba(76, 175, 80, 0.2);
-            border: 2px solid rgba(76, 175, 80, 0.5);
-        }
-
-        .result.not-visible {
-            background: rgba(244, 67, 54, 0.2);
-            border: 2px solid rgba(244, 67, 54, 0.5);
-        }
-
-        .result.info {
-            background: rgba(79, 172, 254, 0.2);
-            border: 2px solid rgba(79, 172, 254, 0.5);
-        }
-
-        .details {
-            margin-top: 15px;
-            font-size: 0.9em;
-            color: #b0b0b0;
-        }
-
-        .loading {
-            display: inline-block;
+        
+        .radio-option input[type="radio"] {
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #4facfe;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
+            cursor: pointer;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        .quick-times {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
         }
-
-        .error {
-            color: #ff6b6b;
-            margin-top: 20px;
+        
+        .quick-time-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            color: #667eea;
+            font-weight: 500;
         }
-
-        .footer {
-            margin-top: 30px;
+        
+        .quick-time-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .results-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .result-card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #667eea;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .stat-label {
             font-size: 0.9em;
-            color: #707070;
-            position: relative;
-            z-index: 1;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .chart-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .error-bars {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .disclaimer {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-size: 0.85em;
+            color: #666;
+            border: 2px dashed #ddd;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="stars" id="stars"></div>
-    
     <div class="container">
-        <div class="planet-icon">🪐</div>
-        <h1>Can I See Uranus?</h1>
-        <p class="subtitle">Find out if Uranus is visible from your location right now</p>
+        <header>
+            <h1>🍺 The Sensible Session Planner</h1>
+            <p>Understand alcohol metabolism with science! Calculate BAC timelines based on real pharmacokinetics.</p>
+        </header>
         
-        <button id="checkButton" onclick="checkUranus()">Check Now</button>
+        <div class="warning-banner">
+            ⚠️ <strong>Educational Tool:</strong> This calculator demonstrates pharmacokinetic principles of alcohol metabolism using the Widmark equation and standard elimination rates. Individual variation is significant - use for learning, not as personal medical advice!
+        </div>
         
-        <div id="result"></div>
-        <div id="error" class="error"></div>
+        <div class="content">
+            <div class="input-section">
+                <h2 style="margin-bottom: 20px; color: #667eea;">📋 Session Details</h2>
+                
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>Sex (affects metabolism)</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sex" value="male" checked>
+                                <span>Male</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sex" value="female">
+                                <span>Female</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Body Weight (kg)</label>
+                        <input type="number" id="weight" value="90" min="40" max="200" step="1">
+                    </div>
+                </div>
+                
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>Session Start</label>
+                        <input type="datetime-local" id="sessionStart">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Session End</label>
+                        <input type="datetime-local" id="sessionEnd">
+                    </div>
+                </div>
+                
+                <div class="input-group" style="margin-top: 20px;">
+                    <label>Need to be Sober By</label>
+                    <input type="datetime-local" id="soberBy">
+                    <div class="quick-times">
+                        <button class="quick-time-btn" onclick="setSoberTime(7, 1)">7am Tomorrow</button>
+                        <button class="quick-time-btn" onclick="setSoberTime(9, 1)">9am Tomorrow</button>
+                        <button class="quick-time-btn" onclick="setSoberTime(12, 1)">12pm Tomorrow</button>
+                        <button class="quick-time-btn" onclick="setSoberTime(18, 0)">6pm Today</button>
+                    </div>
+                </div>
+                
+                <div class="input-group" style="margin-top: 20px;">
+                    <label>What are you drinking?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="drinkType" value="beer" checked>
+                            <span>🍺 Beer (4.5% ABV, 568ml pints)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="drinkType" value="spirits">
+                            <span>🥃 Spirits (45% ABV, 25ml shots)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="drinkType" value="wine">
+                            <span>🍷 Wine (12% ABV, 175ml glasses)</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="calculate-btn" onclick="calculateSession()">🧪 Calculate My Session</button>
+            </div>
+            
+            <div class="results-section" id="results">
+                <div class="result-card">
+                    <h2>📊 Your Drinking Strategy</h2>
+                    <div class="stats-grid" id="mainStats"></div>
+                </div>
+                
+                <div class="result-card">
+                    <h2>📈 Blood Alcohol Content Over Time</h2>
+                    <div class="chart-tabs">
+                        <button class="tab-btn active" onclick="switchChart('steady')">Steady Pace</button>
+                        <button class="tab-btn" onclick="switchChart('frontload')">Heavy Start</button>
+                        <button class="tab-btn" onclick="switchChart('backload')">Slow Start</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="bacChart"></canvas>
+                    </div>
+                    <div class="error-bars">
+                        <strong>📏 Error Margins:</strong> Individual metabolism can vary by ±20%. The calculations include conservative estimates with a safety margin. Factors like food intake, hydration, and individual health significantly affect alcohol metabolism.
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <h2>🔬 The Science</h2>
+                    <div id="scienceExplanation"></div>
+                </div>
+            </div>
+            
+            <div class="disclaimer">
+                <strong>Educational Note:</strong> This tool demonstrates alcohol pharmacokinetics using established scientific models. 
+                It assumes absorption is complete and instantaneous (reality: 30-90 minutes), uniform distribution (reality: varies by tissue), 
+                and zero-order elimination kinetics (mostly accurate for low-moderate BAC). Real-world factors include: gastric emptying time, 
+                food content, genetic polymorphisms in ADH/ALDH enzymes, hepatic function, body composition, and chronopharmacological effects. 
+                This is a teaching tool - consult medical literature for clinical applications. The Widmark formula dates to 1932 but remains 
+                the forensic standard for BAC estimation worldwide.
+            </div>
+        </div>
     </div>
-
-    <div class="footer">
-        Powered by astronomy-engine | Calculations done locally in your browser
-    </div>
-
-    <script type="module">
-        import { Body, Observer, Equator, Horizon } from 'https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/+esm';
-
-        // Generate random stars
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.width = Math.random() * 3 + 1 + 'px';
-                star.style.height = star.style.width;
-                star.style.animationDelay = Math.random() * 3 + 's';
-                starsContainer.appendChild(star);
-            }
+    
+    <script>
+        // Initialize datetime inputs with current time
+        const now = new Date();
+        const dateString = now.toISOString().slice(0, 16);
+        document.getElementById('sessionStart').value = dateString;
+        
+        const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+        document.getElementById('sessionEnd').value = twoHoursLater.toISOString().slice(0, 16);
+        
+        const tomorrow7am = new Date(now);
+        tomorrow7am.setDate(tomorrow7am.getDate() + 1);
+        tomorrow7am.setHours(7, 0, 0, 0);
+        document.getElementById('soberBy').value = tomorrow7am.toISOString().slice(0, 16);
+        
+        let currentChart = null;
+        let chartData = {};
+        
+        function setSoberTime(hour, daysAhead) {
+            const date = new Date();
+            date.setDate(date.getDate() + daysAhead);
+            date.setHours(hour, 0, 0, 0);
+            document.getElementById('soberBy').value = date.toISOString().slice(0, 16);
         }
-
-        createStars();
-
-        window.checkUranus = function() {
-            const resultDiv = document.getElementById('result');
-            const errorDiv = document.getElementById('error');
-            const button = document.getElementById('checkButton');
+        
+        function calculateSession() {
+            // Get inputs
+            const sex = document.querySelector('input[name="sex"]:checked').value;
+            const weight = parseFloat(document.getElementById('weight').value);
+            const sessionStart = new Date(document.getElementById('sessionStart').value);
+            const sessionEnd = new Date(document.getElementById('sessionEnd').value);
+            const soberBy = new Date(document.getElementById('soberBy').value);
+            const drinkType = document.querySelector('input[name="drinkType"]:checked').value;
             
-            resultDiv.innerHTML = '';
-            errorDiv.innerHTML = '';
-            
-            if (!navigator.geolocation) {
-                errorDiv.innerHTML = '❌ Geolocation is not supported by your browser';
+            // Validation
+            if (sessionEnd <= sessionStart) {
+                alert('Session end must be after session start!');
                 return;
             }
-
-            button.disabled = true;
-            button.innerHTML = 'Checking...<span class="loading"></span>';
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-                    const now = new Date();
-
-                    try {
-                        // Create observer at user's location
-                        const observer = new Observer(latitude, longitude, 0);
-                        
-                        // Get Uranus's equatorial coordinates
-                        const equator = Equator(Body.Uranus, now, observer, true, true);
-                        
-                        // Convert to horizontal coordinates (altitude and azimuth)
-                        const horizon = Horizon(now, observer, equator.ra, equator.dec, 'normal');
-                        
-                        const altitude = horizon.altitude;
-                        const azimuth = horizon.azimuth;
-                        
-                        // Uranus is visible if it's above the horizon
-                        const isVisible = altitude > 0;
-                        
-                        // Get compass direction
-                        const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-                        const directionIndex = Math.round(azimuth / 45) % 8;
-                        const direction = directions[directionIndex];
-
-                        if (isVisible) {
-                            resultDiv.className = 'result visible';
-                            resultDiv.innerHTML = `
-                                <div style="font-size: 2em; margin-bottom: 10px;">✨ YES! ✨</div>
-                                <div>Uranus is currently above the horizon!</div>
-                                <div class="details">
-                                    <strong>Altitude:</strong> ${altitude.toFixed(1)}° above horizon<br>
-                                    <strong>Direction:</strong> ${direction} (${azimuth.toFixed(1)}°)<br>
-                                    <strong>Visibility Note:</strong> Uranus is magnitude ~5.7, so you'll need very dark skies and good eyesight to see it with the naked eye. Binoculars make it much easier!
-                                </div>
-                            `;
-                        } else {
-                            resultDiv.className = 'result not-visible';
-                            resultDiv.innerHTML = `
-                                <div style="font-size: 2em; margin-bottom: 10px;">🌙 Not Right Now</div>
-                                <div>Uranus is currently below the horizon at your location.</div>
-                                <div class="details">
-                                    <strong>Altitude:</strong> ${altitude.toFixed(1)}° (below horizon)<br>
-                                    Check back later tonight or try again tomorrow!
-                                </div>
-                            `;
-                        }
-
-                    } catch (error) {
-                        errorDiv.innerHTML = '❌ Error calculating Uranus position: ' + error.message;
-                    }
-
-                    button.disabled = false;
-                    button.innerHTML = 'Check Again';
-                },
-                (error) => {
-                    let errorMessage = '';
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMessage = '❌ Location permission denied. Please enable location access.';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMessage = '❌ Location information unavailable.';
-                            break;
-                        case error.TIMEOUT:
-                            errorMessage = '❌ Location request timed out.';
-                            break;
-                        default:
-                            errorMessage = '❌ An unknown error occurred.';
-                    }
-                    errorDiv.innerHTML = errorMessage;
-                    button.disabled = false;
-                    button.innerHTML = 'Check Now';
-                }
+            
+            if (soberBy <= sessionEnd) {
+                alert('Sober time must be after session ends!');
+                return;
+            }
+            
+            // Constants
+            const widmarkR = sex === 'male' ? 0.68 : 0.55; // Body water constant
+            const metabolismRate = 0.015; // BAC reduction per hour (standard rate)
+            
+            // Drink specifications (grams of alcohol per serving)
+            const drinks = {
+                beer: { name: 'Pint', volume: 568, abv: 0.045, gramsPerServing: 568 * 0.045 * 0.789 },
+                spirits: { name: 'Shot', volume: 25, abv: 0.45, gramsPerServing: 25 * 0.45 * 0.789 },
+                wine: { name: 'Glass', volume: 175, abv: 0.12, gramsPerServing: 175 * 0.12 * 0.789 }
+            };
+            
+            const drink = drinks[drinkType];
+            
+            // Calculate session duration and total time until sober
+            const sessionDurationHours = (sessionEnd - sessionStart) / (1000 * 60 * 60);
+            const totalTimeToSober = (soberBy - sessionStart) / (1000 * 60 * 60);
+            const metabolismTimeHours = (soberBy - sessionEnd) / (1000 * 60 * 60);
+            
+            /*
+             * SCIENTIFIC CALCULATION - Proper BAC modeling
+             * 
+             * Key insight: BAC peaks at session END (when drinking stops)
+             * Then it metabolizes down to 0 by the sober time.
+             * 
+             * Physics:
+             * 1. During session: Adding alcohol AND metabolizing simultaneously
+             * 2. Peak BAC = (total alcohol added) - (metabolism during session)
+             * 3. This peak BAC must metabolize to 0 by sober time
+             * 
+             * Formula:
+             * Peak BAC = Σ(BAC_per_drink) - (session_hours × metabolism_rate)
+             * Peak BAC must equal: metabolism_time_after_session × metabolism_rate
+             * 
+             * For safety (20% slower worst case):
+             * metabolism_rate_worst = 0.015 / 1.2 = 0.0125% per hour
+             */
+            
+            // BAC per drink (immediate BAC contribution)
+            const bacPerDrink = (drink.gramsPerServing / (weight * 1000 * widmarkR)) * 100;
+            
+            // Worst case metabolism rate (20% slower for upper error bound)
+            const worstCaseMetabolismRate = metabolismRate / 1.2;
+            
+            // Maximum peak BAC we can have at session end
+            // This must metabolize to zero by sober time
+            const maxPeakBAC = metabolismTimeHours * worstCaseMetabolismRate;
+            
+            // During the session, we both add and remove alcohol
+            // Net BAC at end = (drinks × bacPerDrink) - (session_hours × metabolism_rate)
+            // We want: Net BAC at end = maxPeakBAC
+            // So: (drinks × bacPerDrink) - (session_hours × worstCaseMetabolismRate) = maxPeakBAC
+            // Therefore: drinks = (maxPeakBAC + (session_hours × worstCaseMetabolismRate)) / bacPerDrink
+            
+            const maxDrinks = Math.floor(
+                (maxPeakBAC + (sessionDurationHours * worstCaseMetabolismRate)) / bacPerDrink
             );
+            
+            // Store calculation data
+            chartData = {
+                sessionStart,
+                sessionEnd,
+                soberBy,
+                maxDrinks,
+                drink,
+                weight,
+                widmarkR,
+                metabolismRate,
+                worstCaseMetabolismRate,
+                sessionDurationHours,
+                metabolismTimeHours,
+                totalTimeToSober,
+                bacPerDrink
+            };
+            
+            // Display results
+            displayResults(maxDrinks, drink.name, sessionStart, sessionEnd, soberBy, sessionDurationHours);
+            
+            // Generate charts
+            generateChart('steady');
+            
+            // Show results
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function displayResults(maxDrinks, drinkName, sessionStart, sessionEnd, soberBy, sessionDurationHours) {
+            const drinksPerHour = (maxDrinks / sessionDurationHours).toFixed(1);
+            
+            const statsHTML = `
+                <div class="stat-box">
+                    <div class="stat-value">${maxDrinks}</div>
+                    <div class="stat-label">${drinkName}s Total</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${drinksPerHour}</div>
+                    <div class="stat-label">${drinkName}s/Hour</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${sessionDurationHours.toFixed(1)}h</div>
+                    <div class="stat-label">Session Duration</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">${chartData.metabolismTimeHours.toFixed(1)}h</div>
+                    <div class="stat-label">Recovery Time</div>
+                </div>
+            `;
+            
+            document.getElementById('mainStats').innerHTML = statsHTML;
+            
+            const scienceHTML = `
+                <p style="margin-bottom: 15px;">
+                    <strong>🧪 The Widmark Formula:</strong> BAC = (A / (W × r)) × 100, where:<br>
+                    • A = grams of pure alcohol consumed<br>
+                    • W = body weight in grams (you: ${weight * 1000}g)<br>
+                    • r = body water distribution ratio (you: ${chartData.widmarkR})<br>
+                    • Each ${chartData.drink.name} = ${chartData.drink.gramsPerServing.toFixed(1)}g alcohol = ${chartData.bacPerDrink.toFixed(4)}% BAC
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <strong>⏱️ Metabolism Rate:</strong> Alcohol is metabolized at approximately ${chartData.metabolismRate * 100}% BAC per hour 
+                    via hepatic alcohol dehydrogenase (zero-order kinetics). This is relatively constant and cannot be accelerated. 
+                    For safety, we use worst-case ${(chartData.worstCaseMetabolismRate * 100).toFixed(3)}% per hour (20% slower).
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <strong>🔬 Peak BAC Calculation:</strong> Your BAC <em>peaks at session end</em> when you stop drinking. 
+                    During your ${chartData.sessionDurationHours.toFixed(1)}h session, you're simultaneously adding alcohol AND metabolizing it. 
+                    Net peak BAC = (total drinks × ${chartData.bacPerDrink.toFixed(4)}%) - (${chartData.sessionDurationHours.toFixed(1)}h × ${(chartData.worstCaseMetabolismRate * 100).toFixed(3)}%/h) 
+                    = ${((chartData.maxDrinks * chartData.bacPerDrink) - (chartData.sessionDurationHours * chartData.worstCaseMetabolismRate)).toFixed(4)}% peak BAC.
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <strong>📉 Metabolism to Zero:</strong> After session end, you have ${chartData.metabolismTimeHours.toFixed(1)} hours of pure elimination. 
+                    Maximum safe peak BAC = ${chartData.metabolismTimeHours.toFixed(1)}h × ${(chartData.worstCaseMetabolismRate * 100).toFixed(3)}%/h = ${(chartData.metabolismTimeHours * chartData.worstCaseMetabolismRate).toFixed(4)}% BAC. 
+                    This ensures you reach 0.000% by your deadline.
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <strong>🎯 Why Timing Matters:</strong> Frontloading (heavy start) means more drinks metabolize DURING the session, 
+                    lowering your peak BAC at session end. Backloading (slow start) means less time to metabolize during drinking, 
+                    creating a higher peak that takes longer to eliminate. The steady pace balances both phases.
+                </p>
+                <p style="margin-bottom: 15px;">
+                    <strong>📊 The Math:</strong> 
+                    Max drinks = (Peak BAC limit + Session metabolism) / BAC per drink<br>
+                    = (${(chartData.metabolismTimeHours * chartData.worstCaseMetabolismRate).toFixed(4)}% + ${(chartData.sessionDurationHours * chartData.worstCaseMetabolismRate).toFixed(4)}%) / ${chartData.bacPerDrink.toFixed(4)}%<br>
+                    = ${chartData.maxDrinks} drinks
+                </p>
+                <p>
+                    <strong>⚠️ Real-World Factors:</strong> Food slows absorption (30-90 min delay), reducing peak BAC by 30-50%. 
+                    Hydration dilutes but doesn't eliminate alcohol. Genetic variants (ALDH2*2 allele) affect acetaldehyde metabolism. 
+                    This model assumes instantaneous absorption and perfect mixing - reality is messier!
+                </p>
+            `;
+            
+            document.getElementById('scienceExplanation').innerHTML = scienceHTML;
+        }
+        
+        function generateChart(pattern) {
+            const { sessionStart, sessionEnd, soberBy, maxDrinks, drink, weight, widmarkR, metabolismRate, worstCaseMetabolismRate, bacPerDrink } = chartData;
+            
+            // Generate drinking schedule based on pattern
+            let drinkTimes = [];
+            const sessionDurationMs = sessionEnd - sessionStart;
+            
+            if (pattern === 'steady') {
+                // Evenly spaced
+                for (let i = 0; i < maxDrinks; i++) {
+                    drinkTimes.push(new Date(sessionStart.getTime() + (i * sessionDurationMs / maxDrinks)));
+                }
+            } else if (pattern === 'frontload') {
+                // 60% in first half, 40% in second half
+                const firstHalfDrinks = Math.ceil(maxDrinks * 0.6);
+                const firstHalfDuration = sessionDurationMs / 2;
+                
+                for (let i = 0; i < firstHalfDrinks; i++) {
+                    drinkTimes.push(new Date(sessionStart.getTime() + (i * firstHalfDuration / firstHalfDrinks)));
+                }
+                
+                const secondHalfDrinks = maxDrinks - firstHalfDrinks;
+                if (secondHalfDrinks > 0) {
+                    for (let i = 0; i < secondHalfDrinks; i++) {
+                        drinkTimes.push(new Date(sessionStart.getTime() + firstHalfDuration + (i * firstHalfDuration / secondHalfDrinks)));
+                    }
+                }
+            } else if (pattern === 'backload') {
+                // 40% in first half, 60% in second half
+                const firstHalfDrinks = Math.floor(maxDrinks * 0.4);
+                const firstHalfDuration = sessionDurationMs / 2;
+                
+                if (firstHalfDrinks > 0) {
+                    for (let i = 0; i < firstHalfDrinks; i++) {
+                        drinkTimes.push(new Date(sessionStart.getTime() + (i * firstHalfDuration / firstHalfDrinks)));
+                    }
+                }
+                
+                const secondHalfDrinks = maxDrinks - firstHalfDrinks;
+                for (let i = 0; i < secondHalfDrinks; i++) {
+                    drinkTimes.push(new Date(sessionStart.getTime() + firstHalfDuration + (i * firstHalfDuration / secondHalfDrinks)));
+                }
+            }
+            
+            // Calculate BAC over time with proper physics
+            const dataPoints = [];
+            const startTime = sessionStart.getTime();
+            const endTime = soberBy.getTime();
+            const timeStep = 10 * 60 * 1000; // 10 minutes for smooth curve
+            
+            for (let time = startTime; time <= endTime; time += timeStep) {
+                const currentTime = new Date(time);
+                let bacNominal = 0;
+                let bacWorstCase = 0;
+                let bacBestCase = 0;
+                
+                // For each drink consumed so far, calculate its contribution to current BAC
+                drinkTimes.forEach(drinkTime => {
+                    if (drinkTime <= currentTime) {
+                        const hoursElapsed = (currentTime - drinkTime) / (1000 * 60 * 60);
+                        
+                        // Nominal case
+                        const bacFromThisDrink = Math.max(0, bacPerDrink - (hoursElapsed * metabolismRate));
+                        bacNominal += bacFromThisDrink;
+                        
+                        // Worst case (slower metabolism)
+                        const bacWorst = Math.max(0, bacPerDrink - (hoursElapsed * worstCaseMetabolismRate));
+                        bacWorstCase += bacWorst;
+                        
+                        // Best case (faster metabolism)
+                        const bacBest = Math.max(0, bacPerDrink - (hoursElapsed * metabolismRate * 1.2));
+                        bacBestCase += bacBest;
+                    }
+                });
+                
+                dataPoints.push({
+                    time: currentTime,
+                    bac: bacNominal,
+                    bacUpper: bacWorstCase,
+                    bacLower: bacBestCase
+                });
+            }
+            
+            // Find peak BAC
+            const peakBAC = Math.max(...dataPoints.map(d => d.bac));
+            const peakBACWorst = Math.max(...dataPoints.map(d => d.bacUpper));
+            
+            // Create chart
+            const ctx = document.getElementById('bacChart');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const labels = dataPoints.map(d => {
+                const hours = d.time.getHours();
+                const mins = d.time.getMinutes();
+                return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+            });
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Expected BAC',
+                            data: dataPoints.map(d => d.bac),
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Worst Case (Slow Metabolism)',
+                            data: dataPoints.map(d => d.bacUpper),
+                            borderColor: '#f5576c',
+                            backgroundColor: 'rgba(245, 87, 108, 0.05)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Best Case (Fast Metabolism)',
+                            data: dataPoints.map(d => d.bacLower),
+                            borderColor: '#4ecdc4',
+                            backgroundColor: 'rgba(78, 205, 196, 0.05)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(4) + '% BAC';
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                sessionEnd: {
+                                    type: 'line',
+                                    xMin: labels.findIndex(l => {
+                                        const [h, m] = l.split(':').map(Number);
+                                        const labelTime = new Date(sessionStart);
+                                        labelTime.setHours(h, m, 0, 0);
+                                        return Math.abs(labelTime - sessionEnd) < 15 * 60 * 1000;
+                                    }),
+                                    xMax: labels.findIndex(l => {
+                                        const [h, m] = l.split(':').map(Number);
+                                        const labelTime = new Date(sessionStart);
+                                        labelTime.setHours(h, m, 0, 0);
+                                        return Math.abs(labelTime - sessionEnd) < 15 * 60 * 1000;
+                                    }),
+                                    borderColor: 'orange',
+                                    borderWidth: 2,
+                                    borderDash: [10, 5],
+                                    label: {
+                                        display: true,
+                                        content: 'Session Ends',
+                                        position: 'start'
+                                    }
+                                },
+                                legalLimit: {
+                                    type: 'line',
+                                    yMin: 0.08,
+                                    yMax: 0.08,
+                                    borderColor: 'red',
+                                    borderWidth: 2,
+                                    borderDash: [10, 5],
+                                    label: {
+                                        display: true,
+                                        content: 'UK Legal Limit (0.08%)',
+                                        position: 'end'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Blood Alcohol Content (%)',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(3) + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function switchChart(pattern) {
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Generate new chart
+            generateChart(pattern);
         }
     </script>
 </body>
