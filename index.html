@@ -249,6 +249,48 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .countdown {
+            background: rgba(79, 172, 254, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid rgba(79, 172, 254, 0.3);
+        }
+
+        .countdown-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .countdown-unit {
+            background: rgba(79, 172, 254, 0.2);
+            padding: 15px 20px;
+            border-radius: 8px;
+            min-width: 80px;
+        }
+
+        .countdown-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #4facfe;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .countdown-label {
+            font-size: 0.8em;
+            color: #888;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -297,10 +339,80 @@
 
         createStars();
 
+        let countdownInterval = null;
+
+        function findUranusRise(observer, startTime) {
+            // Search forward in time to find when Uranus rises above horizon
+            let searchTime = new Date(startTime);
+            const maxSearchDays = 1; // Search up to 24 hours ahead
+            
+            for (let hours = 0; hours < maxSearchDays * 24; hours += 0.25) { // Check every 15 minutes
+                searchTime = new Date(startTime.getTime() + hours * 60 * 60 * 1000);
+                
+                const equator = Equator(Body.Uranus, searchTime, observer, true, true);
+                const horizon = Horizon(searchTime, observer, equator.ra, equator.dec, 'normal');
+                
+                if (horizon.altitude > 0) {
+                    return searchTime;
+                }
+            }
+            
+            return null; // Uranus won't rise in the next 24 hours
+        }
+
+        function updateCountdown(riseTime) {
+            const now = new Date();
+            const diff = riseTime - now;
+            
+            if (diff <= 0) {
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                }
+                document.getElementById('countdown').innerHTML = '<div class="countdown-title">🌅 Uranus should be rising now! Click "Check Again" to verify.</div>';
+                return;
+            }
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            const countdownHTML = `
+                <div class="countdown-title">⏰ Uranus will rise in:</div>
+                <div class="countdown-timer">
+                    ${hours > 0 ? `
+                        <div class="countdown-unit">
+                            <div class="countdown-value">${hours}</div>
+                            <div class="countdown-label">${hours === 1 ? 'Hour' : 'Hours'}</div>
+                        </div>
+                    ` : ''}
+                    <div class="countdown-unit">
+                        <div class="countdown-value">${minutes}</div>
+                        <div class="countdown-label">${minutes === 1 ? 'Minute' : 'Minutes'}</div>
+                    </div>
+                    <div class="countdown-unit">
+                        <div class="countdown-value">${seconds}</div>
+                        <div class="countdown-label">${seconds === 1 ? 'Second' : 'Seconds'}</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.9em; color: #888;">
+                    Rise time: ${riseTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
+                </div>
+            `;
+            
+            document.getElementById('countdown').innerHTML = countdownHTML;
+        }
+
         window.checkUranus = function() {
             const resultDiv = document.getElementById('result');
             const errorDiv = document.getElementById('error');
             const button = document.getElementById('checkButton');
+            
+            // Clear any existing countdown
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
             
             resultDiv.innerHTML = '';
             errorDiv.innerHTML = '';
@@ -441,14 +553,34 @@
                                 </div>
                             `;
                         } else {
+                            // Find when Uranus will rise
+                            const riseTime = findUranusRise(observer, now);
+                            
+                            let countdownHTML = '';
+                            if (riseTime) {
+                                countdownHTML = '<div id="countdown" class="countdown"></div>';
+                                // Start countdown timer
+                                setTimeout(() => {
+                                    updateCountdown(riseTime);
+                                    countdownInterval = setInterval(() => updateCountdown(riseTime), 1000);
+                                }, 100);
+                            } else {
+                                countdownHTML = `
+                                    <div style="background: rgba(255, 152, 0, 0.15); padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px solid rgba(255, 152, 0, 0.3);">
+                                        <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px;">⚠️ Won't Rise Soon</div>
+                                        <p style="margin: 0; line-height: 1.6;">Uranus won't rise above the horizon in the next 24 hours at your location. This can happen depending on the season and your latitude.</p>
+                                    </div>
+                                `;
+                            }
+                            
                             resultDiv.className = 'result not-visible';
                             resultDiv.innerHTML = `
                                 <div style="font-size: 2em; margin-bottom: 10px;">🌙 Not Right Now</div>
                                 <div>Uranus is currently below the horizon at your location.</div>
                                 <div class="details">
                                     <strong>Altitude:</strong> ${altitude.toFixed(1)}° (below horizon)<br>
-                                    Check back later tonight or try again tomorrow!
                                 </div>
+                                ${countdownHTML}
                                 <div class="stats-grid">
                                     <div class="stat-box">
                                         <div class="stat-label">Distance from Earth</div>
