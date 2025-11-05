@@ -366,6 +366,40 @@
                         const decSign = equator.dec >= 0 ? '+' : '-';
                         const decFormatted = `${decSign}${decDegrees}° ${decMinutes}'`;
 
+                        // Determine naked-eye visibility
+                        // Uranus is typically magnitude 5.5-6.0
+                        // Naked eye limit is ~6.0 in dark skies, ~4.0 in suburban, ~2.0 in city
+                        const nakedEyeVisible = illum.mag <= 6.0 && altitude > 20; // Need decent altitude
+                        const easyToSee = illum.mag <= 5.7 && altitude > 30;
+                        
+                        // Generate viewing tips
+                        let viewingTips = '';
+                        if (nakedEyeVisible) {
+                            viewingTips = `
+                                <div style="background: rgba(76, 175, 80, 0.15); padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                                    <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px;">🔭 Naked-Eye Viewing Tips:</div>
+                                    <ul style="text-align: left; line-height: 1.8; padding-left: 20px; margin: 0;">
+                                        ${easyToSee ? '<li><strong>Good news!</strong> At this altitude and magnitude, Uranus should be visible to the naked eye in dark skies.</li>' : '<li>Uranus is <em>technically</em> naked-eye visible, but challenging at this altitude.</li>'}
+                                        <li><strong>Dark adaptation:</strong> Let your eyes adjust for 20-30 minutes away from bright lights.</li>
+                                        <li><strong>Avoid light pollution:</strong> Get away from city lights. Even suburban areas make it much harder.</li>
+                                        <li><strong>Look for a star:</strong> Uranus appears as a faint blue-green "star" that doesn't twinkle as much as real stars.</li>
+                                        <li><strong>Use a star chart app:</strong> Apps like SkySafari, Stellarium, or Star Walk can help you pinpoint its exact location.</li>
+                                        <li><strong>Binoculars help immensely:</strong> Even cheap 7x50 binoculars will make Uranus easy to spot and show its bluish color.</li>
+                                        <li><strong>Moon phase matters:</strong> Check if there's a bright moon tonight - it can wash out faint objects.</li>
+                                        ${altitude < 30 ? '<li><strong>⚠️ Low altitude warning:</strong> Being close to the horizon means atmospheric distortion and light pollution will make it harder to see.</li>' : ''}
+                                    </ul>
+                                </div>
+                            `;
+                        } else {
+                            viewingTips = `
+                                <div style="background: rgba(255, 152, 0, 0.15); padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px solid rgba(255, 152, 0, 0.3);">
+                                    <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px;">🔭 Viewing Recommendation:</div>
+                                    <p style="margin: 0; line-height: 1.6;">At its current position (${altitude.toFixed(1)}° altitude, magnitude ${illum.mag.toFixed(2)}), Uranus is extremely difficult or impossible to see with the naked eye. ${altitude < 20 ? 'It\'s too close to the horizon.' : 'Use binoculars or a telescope for best results.'}</p>
+                                    <p style="margin-top: 10px; line-height: 1.6;"><strong>Better option:</strong> Use binoculars (7x50 or better) or a small telescope. Uranus will appear as a tiny bluish-green disk.</p>
+                                </div>
+                            `;
+                        }
+
                         if (isVisible) {
                             resultDiv.className = 'result visible';
                             resultDiv.innerHTML = `
@@ -374,8 +408,9 @@
                                 <div class="details">
                                     <strong>Altitude:</strong> ${altitude.toFixed(1)}° above horizon<br>
                                     <strong>Direction:</strong> ${direction} (${azimuth.toFixed(1)}°)<br>
-                                    <strong>Visibility Note:</strong> Uranus has an apparent magnitude of ${illum.mag.toFixed(2)}, which means you'll need very dark skies and good eyesight to see it with the naked eye. Binoculars make it much easier!
+                                    <strong>Apparent Magnitude:</strong> ${illum.mag.toFixed(2)} ${nakedEyeVisible ? '(Naked-eye possible! 👁️)' : '(Use binoculars 🔭)'}
                                 </div>
+                                ${viewingTips}
                                 <div class="stats-grid">
                                     <div class="stat-box">
                                         <div class="stat-label">Distance from Earth</div>
